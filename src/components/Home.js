@@ -1,43 +1,64 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import web3modal from '../helpers/web3modal'
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import contractABI from "../abi/abi.json"
+import { Button } from "@chakra-ui/react"
+import LOGO from "../images/Unstoppable Domains-Sign-Mono-Dark.svg"
+import proxyAbi from "../abi/proxy_abi.json"
+const Moralis = require('moralis');
 
 export default function Home() {
 
-    const contractAddress = "0xa13A18218E5A81f9b9ce10239B5b5926768aEc31"
+    const contractAddress = "0x5a87E2C9FdeEc3577171D382d112B47D6aaAD337";
+    const proxyAddress = "0xA3f32c8cd786dc089Bd1fC175F2707223aeE5d00";
     const [allWaves, setAllWaves] = useState([]);
+    const msgRef = useRef()
+    const serverUrl = "https://jgmsyant2jg0.usemoralis.com:2053/server";
+    const appId = "9o0WluuFBIeNvNU9cM27xi2tnoFbC56SBZQPfc2z";
+    Moralis.start({ serverUrl, appId });
 
     let navigate = useNavigate();
-    const { user, setUser, instance, setInstance } = useAuth() 
-
-    console.log(instance)
+    const { user, setUser, instance, setInstance, name, setName } = useAuth() 
 
     const wave = async() => {
-
-        fetch('https://deep-index.moralis.io/api/v2/'+user+'/nft?chain=matic', {
+        /*fetch('https://deep-index.moralis.io/api/v2/'+user+'/nft?chain=matic', {
             headers: {
                 'x-api-key': 'Jjc0BKejRj4Vk1TDxE5gvdAaBjk3DMDxm0dNJQYcXsv2g1RJURmru8W0Zw6YkTwa',
                 accept: 'application/json'
             }
         }).then((res)=>{
             console.log(res)
-        })
-
-        if(!user) return;
+        })*/
+        if(!user) {
+            alert("You need to login to send messages");
+            return;
+        }
         const provider = new ethers.providers.Web3Provider(instance);
         const signer = provider.getSigner();
         const wavePortalContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
 
-        let count = await wavePortalContract.getTotalWaves();
-
+        wavePortalContract.wave(msgRef.current.value).then(()=>{
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        });
     }
 
-    const handleLogin = async() => {
-        
-        
+    const handleLogin = async(e) => {
+        e.preventDefault()
+
+        const options = { chain: 'matic', address: '0x6D5a57d179FaDf0f267893729FdB50F056F83DD5' };
+        const polygonNFTs = await Moralis.Web3API.account.getNFTs(options);
+        let token_ID;
+        for(let i=0; i<polygonNFTs.result.length; i++) {
+            if(polygonNFTs.result[i].token_address==="0xa9a6a3626993d487d2dbda3173cf58ca1a9d9e9f") {
+                token_ID = polygonNFTs.result[i].token_id;
+                break;
+            }
+        }
+        console.log(typeof(token_ID))
 
         if(user) {
             setUser(undefined);
@@ -50,8 +71,27 @@ export default function Home() {
 
         console.log(await signer.getAddress())
         setUser(await signer.getAddress())
+
+        try {
+            let proxyReaderContractInstance = new ethers.Contract(proxyAddress, proxyAbi.abi, signer); // Get a proxy reader contract instance using web3 or ethers
+  
+            let tokenUri = await proxyReaderContractInstance.tokenURI(token_ID); // call the tokenURI method
+            
+            let metadataResponse = await fetch(tokenUri); // GET data from URI
+            let metadata = await metadataResponse.json(); // Parse it as json
+            setName(metadata.name)
+            console.log(name)
+            console.log(metadata.name);
+        } catch(err) {
+            console.log(err)
+        }
+
         getAllWaves()
         navigate("/", { replace: false });
+    }
+
+    const handleLogout = () => {
+        setUser(undefined)
     }
 
     const getAllWaves = async () => {
@@ -61,22 +101,11 @@ export default function Home() {
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const wavePortalContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
-    
-            /*
-             * Call the getAllWaves method from your Smart Contract
-             */
+
             const waves = await wavePortalContract.getAllWaves();
-    
-    
-            /*
-             * We only need address, timestamp, and message in our UI so let's
-             * pick those out
-             */
+
             let wavesCleaned = [];
             waves.forEach(wave => {
-
-                
-
                 wavesCleaned.push({
                     address: wave.waver,
                     timestamp: new Date(wave.timestamp * 1000),
@@ -84,9 +113,6 @@ export default function Home() {
                 });
             });
     
-            /*
-             * Store our data in React State
-             */
             setAllWaves(wavesCleaned);
           } else {
             console.log("Ethereum object doesn't exist!")
@@ -107,8 +133,6 @@ export default function Home() {
         };
     }, []);
     
- 
-    
     return (
         <div className="mainContainer">
 
@@ -118,21 +142,76 @@ export default function Home() {
             </div>
 
             <div className="bio">
-            I am Mihir and I love NFTs. Connect your Ethereum wallet and wave at me!
+            I am fitbhai and I love NFTs. Connect with Unstoppable and wave at me!
             </div>
-            <button onClick={handleLogin}>
-            {user ? "Log Out" : "Log In"}
-            </button>
+            <p>
+                This app runs on the Polygon/Matic Mainnet.
+            </p>
+            {user ? 
+
+            <>
+            <Button
+            className="authButton"
+            backgroundColor={'#4b47ee'}
+            _hover={{
+                bg: '#0b24b3'
+            }}
+            _active={{
+                bg: '#5361c7'
+            }}
+            color={'white'} leftIcon={<img style={{height: "20px"}} src={LOGO} alt="logo"/>}
+            >
+            {name}
+            </Button>
+            <Button
+            className="authButton"
+            onClick={handleLogout}
+            backgroundColor={'#4b47ee'}
+            _hover={{
+                bg: '#0b24b3'
+            }}
+            _active={{
+                bg: '#5361c7'
+            }}
+            color={'white'} leftIcon={<img style={{height: "20px"}} src={LOGO} alt="logo"/>}
+            >
+            Log Out
+            </Button>
+            </>
+            :
+            <Button
+            className="authButton"
+            onClick={handleLogin}
+            backgroundColor={'#4b47ee'}
+            _hover={{
+                bg: '#0b24b3'
+            }}
+            _active={{
+                bg: '#5361c7'
+            }}
+            color={'white'} leftIcon={<img style={{height: "20px"}} src={LOGO} alt="logo"/>}
+            >
+            Login with Unstoppable
+            </Button>
+            
+            }
+            
+            
+            <form>
+                <label htmlFor="wave"/>
+                <input id="wave" type="text" style={{marginTop: "20px",  width: "98%", height: "30px"}} placeholder="Type your message" ref={msgRef}/>
+            </form>
             <button className="waveButton" onClick={wave}>
-            Wave at Me
+                Send a message.
             </button>
             {allWaves.map((wave, index) => {
             return (
-                <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+                <div key={index} style={{ backgroundColor: "LightBlue", marginTop: "16px", padding: "8px" }}>
                 <div>Address: {wave.address}</div>
                 <div>Time: {wave.timestamp.toString()}</div>
                 <div>Message: {wave.message}</div>
-                </div>)
+                </div>
+                )
             })}
         </div>
         </div>
