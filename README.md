@@ -1,7 +1,16 @@
-### **Welcome!**
-To get started with this course, clone this repo and follow these commands:
+### Project Name
+Message Portal DApp
 
-1. Run `npm install` at the root of your directory
-2. Run `npm run start` to start the project
-3. Start coding!
+### Project Code
+Repo - [https://github.com/mihir-bl/message-portal](https://github.com/mihir-bl/message-portal)
 
+### Working App
+Website (WIP) - [https://message-portal.vercel.app/](https://message-portal.vercel.app/)
+
+### Recorded Video
+Youtube - []()
+
+### Contact Info
+- Discord ID - pamp_ETH#9446
+- Email ID - [mihirbl.181cv221@nitk.edu.in](mailto:mihirbl.181cv221@nitk.edu.in)
+- Gitcoin - [mihir-bl](https://gitcoin.co/mihir-bl)
