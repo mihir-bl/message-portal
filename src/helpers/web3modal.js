@@ -6,7 +6,7 @@ import Web3Modal from 'web3modal'
 export const uauthOptions = {
   clientID: 'r+6CuDOZrgQV6tJX+ERS6l1Pgl6SMZkTwEzLrURco8s=',
   clientSecret: 'eHsmS3Ct9fb0tLQF3Itk1Q1ntk6jBgjzES4pgSTm7fs=',
-  redirectUri: 'https://message-portal.vercel.app/callback',
+  redirectUri: 'http://localhost:3000/callback',
 
   // Must include both the openid and wallet scopes.
   scope: 'openid wallet email:optional',

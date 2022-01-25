@@ -49,15 +49,7 @@ export default function Home() {
     const handleLogin = async(e) => {
         e.preventDefault()
 
-        const options = { chain: 'matic', address: '0x6D5a57d179FaDf0f267893729FdB50F056F83DD5' };
-        const polygonNFTs = await Moralis.Web3API.account.getNFTs(options);
-        let token_ID;
-        for(let i=0; i<polygonNFTs.result.length; i++) {
-            if(polygonNFTs.result[i].token_address==="0xa9a6a3626993d487d2dbda3173cf58ca1a9d9e9f") {
-                token_ID = polygonNFTs.result[i].token_id;
-                break;
-            }
-        }
+        
         console.log(typeof(token_ID))
 
         if(user) {
@@ -67,12 +59,22 @@ export default function Home() {
         const instanceProvider = await web3modal.connect();
         setInstance(instanceProvider)
         const provider = new ethers.providers.Web3Provider(instanceProvider);
+        //const provider = new ethers.providers.getDefaultProvider(window.ethereum)
         const signer = provider.getSigner();
 
-        console.log(await signer.getAddress())
+        const addr = await signer.getAddress()
         setUser(await signer.getAddress())
 
         try {
+            const options = { chain: 'matic', address: addr };
+            const polygonNFTs = await Moralis.Web3API.account.getNFTs(options);
+            let token_ID;
+            for(let i=0; i<polygonNFTs.result.length; i++) {
+                if(polygonNFTs.result[i].token_address==="0xa9a6a3626993d487d2dbda3173cf58ca1a9d9e9f") {
+                    token_ID = polygonNFTs.result[i].token_id;
+                    break;
+                }
+            }
             let proxyReaderContractInstance = new ethers.Contract(proxyAddress, proxyAbi.abi, signer); // Get a proxy reader contract instance using web3 or ethers
   
             let tokenUri = await proxyReaderContractInstance.tokenURI(token_ID); // call the tokenURI method
