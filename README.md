@@ -8,7 +8,7 @@ Repo - [https://github.com/mihir-bl/message-portal](https://github.com/mihir-bl/
 Website (WIP) - [https://message-portal.vercel.app/](https://message-portal.vercel.app/)
 
 ### Recorded Video
-Youtube - []()
+Youtube - [https://youtu.be/o8WJeNyf9EU](https://youtu.be/o8WJeNyf9EU)
 
 ### Contact Info
 - Discord ID - pamp_ETH#9446
